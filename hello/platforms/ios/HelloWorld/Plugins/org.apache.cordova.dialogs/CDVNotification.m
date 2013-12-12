@@ -64,6 +64,11 @@
 
 - (void)alert:(CDVInvokedUrlCommand*)command
 {
+    [self performSelector:@selector(alert2:) withObject:command afterDelay:0.1];
+}
+
+- (void)alert2:(CDVInvokedUrlCommand*)command
+{
     NSString* callbackId = command.callbackId;
     NSString* message = [command argumentAtIndex:0];
     NSString* title = [command argumentAtIndex:1];
