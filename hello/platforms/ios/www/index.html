@@ -42,9 +42,11 @@
             
         // GUIDA SEGUITA (e in larga parte, sopratutto l'inizio, obsoleta!!!): http://mobile.tutsplus.com/tutorials/phonegap/phonegap-from-scratch/
         
-        // accelerometro + agitare + fotocamera + salvataggio
+        // accelerometro + agitare + fotocamera + salvataggio + geolocalizzazione
         
         // The watch id references the current `watchAcceleration`
+        var watchID = null;
+        var watchID = null;
         var watchID = null;
         var previousReading = {
             x: null,
@@ -88,6 +90,10 @@
             // Update acceleration every 250 ms
             var options = { frequency: 250 };
             watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+            
+            // posizione
+            navigator.geolocation.getCurrentPosition(positionSuccess, positionError);
+            navigator.geolocation.watchPosition(watchPositionSuccess, positionError, { timeout: 30000 });
         }
         // Stop watching the acceleration
         function stopWatch()
@@ -129,9 +135,32 @@
             
             var element = document.getElementById('accelerometer');
             element.innerHTML = 'Acceleration X: ' + acceleration.x + '<br />' +
-            'Acceleration Y: ' + acceleration.y + '<br />' +
-            'Acceleration Z: ' + acceleration.z + '<br />' +
-            'Timestamp: '      + acceleration.timestamp + '<br />';
+                                'Acceleration Y: ' + acceleration.y + '<br />' +
+                                'Acceleration Z: ' + acceleration.z + '<br />' +
+                                'Timestamp: '      + acceleration.timestamp + '<br />';
+        }
+        function positionSuccess(position)
+        {
+            console.log('positionSuccess()');
+            
+            var el = document.getElementById('geolocation');
+            el.innerHTML = 'Latitude: '           + position.coords.latitude              + '<br />' +
+                           'Longitude: '          + position.coords.longitude             + '<br />' +
+                           'Altitude: '           + position.coords.altitude              + '<br />' +
+                           'Accuracy: '           + position.coords.accuracy              + '<br />' +
+                           'Altitude Accuracy: '  + position.coords.altitudeAccuracy      + '<br />' +
+                           'Heading: '            + position.coords.heading               + '<br />' +
+                           'Speed: '              + position.coords.speed                 + '<br />' +
+                           'Timestamp: '          + new Date(position.timestamp)          + '<br />';
+        }
+        function watchPositionSuccess(position)
+        {
+            console.log('watchPosition()');
+            
+            var el = document.getElementById('watchGeolocation');
+            el.innerHTML = 'Latitude: '  + position.coords.latitude      + '<br />' +
+                           'Longitude: ' + position.coords.longitude     + '<br />' +
+                           'Timestamp: ' + new Date(position.timestamp)  + '<br />';
         }
         // Error
         function onError()
@@ -139,6 +168,13 @@
             console.log('onError()');
             
             alert('onError!');
+        }
+        function positionError(error)
+        {
+            console.log('positionError()');
+            
+            alert('code: '    + error.code    + '\n' +
+                  'message: ' + error.message + '\n');
         }
         function shaken()
         {
@@ -257,8 +293,10 @@
         <button onclick="capturePhoto();">Capture Photo</button> <br>
         <button onclick="capturePhotoLibrary();">Capture Photo to library</button> <br>
         <button onclick="PHOTOLIBRARY();">PHOTOLIBRARY</button> <br>
-        <img style="display:none;width:60px;height:60px;" id="smallImage" src="" />
-        <img style="width:60px;height:60px;" id="smallImage2" src="" />
+        <img style="display:none;width:60px;height:60px;" id="smallImage" src="damettere" alt=""/>
+        <img style="width:60px;height:60px;" id="smallImage2" src="damettere"  alt=""/>
         <div id="dasostituire">Questa scritta NON si dovrebbe vedere!!!</div>
+        <p id="geolocation">Finding geolocation...</p>
+        <p id="watchGeolocation">Finding geolocation REALTIME...</p>
     </body>
 </html>
