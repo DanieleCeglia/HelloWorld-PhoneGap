@@ -40,6 +40,8 @@
         </script>
         <script>
             
+            // GUIDA SEGUITA (e in larga parte, sopratutto l'inizio, obsoleta!!!): http://mobile.tutsplus.com/tutorials/phonegap/phonegap-from-scratch/
+            
             // accelerometro
             /*
             //wait for PhoneGap to load
@@ -206,7 +208,7 @@
                 pictureSource=navigator.camera.PictureSourceType;
                 destinationType=navigator.camera.DestinationType;
                 
-                //startWatch();
+                startWatch();
             }
             // Start watching the acceleration
             function startWatch()
@@ -322,31 +324,49 @@
                 }
                 return rtr;
             }
-            function getPhoto(imageData)
+            function onPhotoDataSuccess(imageData)
             {
-                console.log('getPhoto()');
+                console.log('onPhotoDataSuccess()');
                 
                 var smallImage = document.getElementById('smallImage');
                 smallImage.style.display = 'block';
                 smallImage.src = "data:image/jpeg;base64," + imageData;
             }
+            function onPhotoURISuccess(imageURI)
+            {
+                console.log('onPhotoURISuccess()');
+                
+                // Uncomment to view the image file URI
+                console.log("imageURI: ", imageURI);
+                
+                var largeImage = document.getElementById('smallImage');
+                
+                // Unhide image elements
+                
+                largeImage.style.display = 'block';
+                
+                // Show the captured photo
+                // The in-line CSS rules are used to resize the image
+                //
+                largeImage.src = imageURI;
+            }
             function capturePhoto()
             {
                 console.log('capturePhoto()');
                 
-                navigator.camera.getPicture(getPhoto, onFail, { quality: 50, destinationType: destinationType.DATA_URL, allowEdit: true });
+                navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50, destinationType: destinationType.DATA_URL, allowEdit: true });
             }
             function capturePhotoLibrary()
             {
                 console.log('capturePhotoLibrary()');
                 
-                navigator.camera.getPicture(getPhoto, onFail, { quality: 50, destinationType: destinationType.DATA_URL, saveToPhotoAlbum: true });
+                navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50, destinationType: destinationType.DATA_URL, saveToPhotoAlbum: true });
             }
             function PHOTOLIBRARY()
             {
                 console.log('PHOTOLIBRARY()');
                 
-                navigator.camera.getPicture(getPhoto, onFail, { quality: 100, destinationType: destinationType.DATA_URL, sourceType: pictureSource.PHOTOLIBRARY });
+                navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 100, destinationType: destinationType.FILE_URI, sourceType: pictureSource.PHOTOLIBRARY }); // pictureSource.SAVEDPHOTOALBUM da solo rullino fotografico senza gli album
             }
             function onFail(message)
             {
