@@ -40,345 +40,225 @@
         </script>
         <script>
             
-            // GUIDA SEGUITA (e in larga parte, sopratutto l'inizio, obsoleta!!!): http://mobile.tutsplus.com/tutorials/phonegap/phonegap-from-scratch/
-            
-            // accelerometro
-            /*
-            //wait for PhoneGap to load
-            document.addEventListener("deviceready", loaded, false);
-            // PhoneGap is ready
-            function loaded()
-            {
-                startWatch();
-            }
-            // Start watching the acceleration
-            function startWatch()
-            {
-                // Update acceleration every 250 ms
-                var options = { frequency: 250 };
-                watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
-            }
-            // Stop watching the acceleration
-            function stopWatch()
-            {
-                if (watchID)
-                {
-                    navigator.accelerometer.clearWatch(watchID);
-                    watchID = null;
-                }
-            }
-            // Success
-            function onSuccess(acceleration)
-            {
-                var element = document.getElementById('accelerometer');
-                element.innerHTML = 'Acceleration X: ' + acceleration.x + '<br />' +
-                                    'Acceleration Y: ' + acceleration.y + '<br />' +
-                                    'Acceleration Z: ' + acceleration.z + '<br />' +
-                                    'Timestamp: '      + acceleration.timestamp + '<br />';
-            }
-            // Error
-            function onError()
-            {
-                alert('onError!');
-            }
-            */
+        // GUIDA SEGUITA (e in larga parte, sopratutto l'inizio, obsoleta!!!): http://mobile.tutsplus.com/tutorials/phonegap/phonegap-from-scratch/
         
-            // accelerometro + agitare
-            /*
-            // The watch id references the current `watchAcceleration`
-            var watchID = null;
-            var previousReading = {
-                x: null,
-                y: null,
-                z: null
-            }
-            //wait for PhoneGap to load
-            document.addEventListener("deviceready", loaded, false);
-            // PhoneGap is ready
-            function loaded()
-            {
-                console.log('loaded()');
-                
-                startWatch();
-            }
-            // Start watching the acceleration
-            function startWatch()
-            {
-                console.log('startWatch()');
-                
-                // Update acceleration every 250 ms
-                var options = { frequency: 250 };
-                watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
-            }
-            // Stop watching the acceleration
-            function stopWatch()
-            {
-                console.log('stopWatch()');
-                
-                if (watchID)
-                {
-                    navigator.accelerometer.clearWatch(watchID);
-                    watchID = null;
-                }
-            }
-            // Success
-            function onSuccess(acceleration)
-            {
-                console.log('onSuccess()');
-                
-                var changes = {},
-                bound = 0.6;
-                
-                if (previousReading.x !== null)
-                {
-                    changes.x = Math.abs(previousReading.x, acceleration.x);
-                    changes.y = Math.abs(previousReading.y, acceleration.y);
-                    changes.z = Math.abs(previousReading.z, acceleration.z);
-                }
-                if (changes.x > bound && changes.y > bound && changes.z > bound)
-                {
-                    stopWatch();
-                    shaken();
-                }
-                
-                previousReading =
-                {
-                    x: acceleration.x,
-                    y: acceleration.y,
-                    z: acceleration.z
-                }
-                
-                var element = document.getElementById('accelerometer');
-                element.innerHTML = 'Acceleration X: ' + acceleration.x + '<br />' +
-                                    'Acceleration Y: ' + acceleration.y + '<br />' +
-                                    'Acceleration Z: ' + acceleration.z + '<br />' +
-                                    'Timestamp: '      + acceleration.timestamp + '<br />';
-            }
-            // Error
-            function onError()
-            {
-                console.log('onError()');
-                
-                alert('onError!');
-            }
-            function shaken()
-            {
-                console.log('shaken()');
-                
-                //alert("Shaken");
-                
-                navigator.notification.alert(
-                                             'Hai agitato il cellulare!',  // message
-                                             alertDismissed,         // callback
-                                             'Ehi',            // title
-                                             'Ok'                  // buttonName
-                                             );
-            }
-            function alertDismissed()
-            {
-                console.log('alertDismissed()');
-                
-                previousReading = {
-                    x: null,
-                    y: null,
-                    z: null
-                }
-                
-                startWatch();
-            }
-            */
-        
-        // accelerometro + agitare + fotocamera
+        // accelerometro + agitare + fotocamera + salvataggio
         
         // The watch id references the current `watchAcceleration`
-            var watchID = null;
-            var previousReading = {
+        var watchID = null;
+        var previousReading = {
+            x: null,
+            y: null,
+            z: null
+        }
+        var pictureSource, destinationType;
+        //wait for PhoneGap to load
+        document.addEventListener("deviceready", loaded, false);
+        // PhoneGap is ready
+        function loaded()
+        {
+            console.log('loaded()');
+            
+            pictureSource=navigator.camera.PictureSourceType;
+            destinationType=navigator.camera.DestinationType;
+            
+            // test storage caricamento da qualcosa di salvato (se c'è qualcosa)
+            var imageDataDaStorage = window.localStorage.getItem("imageData");
+            
+            var smallImage2 = document.getElementById('smallImage2');
+            smallImage2.style.display = 'block';
+            smallImage2.src = "data:image/jpeg;base64," + imageDataDaStorage;
+            
+            // test storage salvataggio, sovrascrittura e caricamento testo
+            window.localStorage.setItem("scritta", "io non esisto -.-");
+            window.localStorage.setItem("scritta", "ciao è miao!");
+            var dasostituire = document.getElementById('dasostituire');
+            dasostituire.innerHTML = window.localStorage.getItem("scritta");
+            
+            // test storage cancellazione
+            window.localStorage.removeItem("imageData");
+            
+            startWatch();
+        }
+        // Start watching the acceleration
+        function startWatch()
+        {
+            console.log('startWatch()');
+            
+            // Update acceleration every 250 ms
+            var options = { frequency: 250 };
+            watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+        }
+        // Stop watching the acceleration
+        function stopWatch()
+        {
+            console.log('stopWatch()');
+            
+            if (watchID)
+            {
+                navigator.accelerometer.clearWatch(watchID);
+                watchID = null;
+            }
+        }
+        // Success
+        function onSuccess(acceleration)
+        {
+            console.log('onSuccess()');
+            
+            var changes = {},
+            bound = 0.6;
+            
+            if (previousReading.x !== null)
+            {
+                changes.x = Math.abs(previousReading.x, acceleration.x);
+                changes.y = Math.abs(previousReading.y, acceleration.y);
+                changes.z = Math.abs(previousReading.z, acceleration.z);
+            }
+            if (changes.x > bound && changes.y > bound && changes.z > bound)
+            {
+                stopWatch();
+                shaken();
+            }
+            
+            previousReading =
+            {
+                x: acceleration.x,
+                y: acceleration.y,
+                z: acceleration.z
+            }
+            
+            var element = document.getElementById('accelerometer');
+            element.innerHTML = 'Acceleration X: ' + acceleration.x + '<br />' +
+            'Acceleration Y: ' + acceleration.y + '<br />' +
+            'Acceleration Z: ' + acceleration.z + '<br />' +
+            'Timestamp: '      + acceleration.timestamp + '<br />';
+        }
+        // Error
+        function onError()
+        {
+            console.log('onError()');
+            
+            alert('onError!');
+        }
+        function shaken()
+        {
+            console.log('shaken()');
+            
+            //alert("Shaken");
+            
+            navigator.notification.alert(
+                                         'Hai agitato il cellulare!',  // message
+                                         alertDismissed,         // callback
+                                         'Ehi',            // title
+                                         'Ok'                  // buttonName
+                                         );
+        }
+        function alertDismissed()
+        {
+            console.log('alertDismissed()');
+            
+            previousReading = {
                 x: null,
                 y: null,
                 z: null
             }
-            var pictureSource, destinationType;
-            //wait for PhoneGap to load
-            document.addEventListener("deviceready", loaded, false);
-            // PhoneGap is ready
-            function loaded()
+            
+            startWatch();
+        }
+        function var_dump(obj, indentSpaces)
+        {
+            switch (typeof obj)
             {
-                console.log('loaded()');
-                
-                pictureSource=navigator.camera.PictureSourceType;
-                destinationType=navigator.camera.DestinationType;
-                
-                startWatch();
-            }
-            // Start watching the acceleration
-            function startWatch()
-            {
-                console.log('startWatch()');
-                
-                // Update acceleration every 250 ms
-                var options = { frequency: 250 };
-                watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
-            }
-            // Stop watching the acceleration
-            function stopWatch()
-            {
-                console.log('stopWatch()');
-                
-                if (watchID)
+                case "object":
+                console.log(indent(indentSpaces) + typeof obj + ":");
+                indentSpaces += 2; // indent further as we are entering the objects properties
+                for (var i in obj)
                 {
-                    navigator.accelerometer.clearWatch(watchID);
-                    watchID = null;
+                    console.log(indent(indentSpaces) + i + ":");
+                    var_dump(obj[i], indentSpaces + 1);
                 }
+                break;
+                default: // things that are not objects, primatives... etc...
+                console.log(indent(indentSpaces) + typeof obj + ":" + obj);
+                break;
             }
-            // Success
-            function onSuccess(acceleration)
-            {
-                console.log('onSuccess()');
-                
-                var changes = {},
-                bound = 0.6;
-                
-                if (previousReading.x !== null)
-                {
-                    changes.x = Math.abs(previousReading.x, acceleration.x);
-                    changes.y = Math.abs(previousReading.y, acceleration.y);
-                    changes.z = Math.abs(previousReading.z, acceleration.z);
-                }
-                if (changes.x > bound && changes.y > bound && changes.z > bound)
-                {
-                    stopWatch();
-                    shaken();
-                }
-                
-                previousReading =
-                {
-                    x: acceleration.x,
-                    y: acceleration.y,
-                    z: acceleration.z
-                }
-                
-                var element = document.getElementById('accelerometer');
-                element.innerHTML = 'Acceleration X: ' + acceleration.x + '<br />' +
-                'Acceleration Y: ' + acceleration.y + '<br />' +
-                'Acceleration Z: ' + acceleration.z + '<br />' +
-                'Timestamp: '      + acceleration.timestamp + '<br />';
+        }
+        // just for styling with indents
+        function indent(spaces)
+        {
+            var i = 0;
+            var rtr = "";
+            while(i <= (spaces * 2)) {
+                rtr += " ";
+                i++;
             }
-            // Error
-            function onError()
-            {
-                console.log('onError()');
-                
-                alert('onError!');
-            }
-            function shaken()
-            {
-                console.log('shaken()');
-                
-                //alert("Shaken");
-                
-                navigator.notification.alert(
-                                             'Hai agitato il cellulare!',  // message
-                                             alertDismissed,         // callback
-                                             'Ehi',            // title
-                                             'Ok'                  // buttonName
-                                             );
-            }
-            function alertDismissed()
-            {
-                console.log('alertDismissed()');
-                
-                previousReading = {
-                    x: null,
-                    y: null,
-                    z: null
-                }
-                
-                startWatch();
-            }
-            function var_dump(obj, indentSpaces)
-            {
-                switch (typeof obj)
-                {
-                    case "object":
-                        console.log(indent(indentSpaces) + typeof obj + ":");
-                        indentSpaces += 2; // indent further as we are entering the objects properties
-                        for (var i in obj)
-                        {
-                            console.log(indent(indentSpaces) + i + ":");
-                            var_dump(obj[i], indentSpaces + 1);
-                        }
-                    break;
-                    default: // things that are not objects, primatives... etc...
-                        console.log(indent(indentSpaces) + typeof obj + ":" + obj);
-                    break;
-                }
-            }
-            // just for styling with indents
-            function indent(spaces)
-            {
-                var i = 0;
-                var rtr = "";
-                while(i <= (spaces * 2)) {
-                    rtr += " ";
-                    i++;
-                }
-                return rtr;
-            }
-            function onPhotoDataSuccess(imageData)
-            {
-                console.log('onPhotoDataSuccess()');
-                
-                var smallImage = document.getElementById('smallImage');
-                smallImage.style.display = 'block';
-                smallImage.src = "data:image/jpeg;base64," + imageData;
-            }
-            function onPhotoURISuccess(imageURI)
-            {
-                console.log('onPhotoURISuccess()');
-                
-                // Uncomment to view the image file URI
-                console.log("imageURI: ", imageURI);
-                
-                var largeImage = document.getElementById('smallImage');
-                
-                // Unhide image elements
-                
-                largeImage.style.display = 'block';
-                
-                // Show the captured photo
-                // The in-line CSS rules are used to resize the image
-                //
-                largeImage.src = imageURI;
-            }
-            function capturePhoto()
-            {
-                console.log('capturePhoto()');
-                
-                navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50, destinationType: destinationType.DATA_URL, allowEdit: true });
-            }
-            function capturePhotoLibrary()
-            {
-                console.log('capturePhotoLibrary()');
-                
-                navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50, destinationType: destinationType.DATA_URL, saveToPhotoAlbum: true });
-            }
-            function PHOTOLIBRARY()
-            {
-                console.log('PHOTOLIBRARY()');
-                
-                navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 100, destinationType: destinationType.FILE_URI, sourceType: pictureSource.PHOTOLIBRARY }); // pictureSource.SAVEDPHOTOALBUM da solo rullino fotografico senza gli album
-            }
-            function onFail(message)
-            {
-                console.log('onFail()');
-                
-                alert('Failed because: ' + message);
-            }
+            return rtr;
+        }
+        function onPhotoDataSuccess(imageData)
+        {
+            console.log('onPhotoDataSuccess()');
+            
+            var smallImage = document.getElementById('smallImage');
+            smallImage.style.display = 'block';
+            smallImage.src = "data:image/jpeg;base64," + imageData;
+            
+            // test storage salvataggio
+            window.localStorage.setItem("imageData", imageData);
+            var imageDataDaStorage = window.localStorage.getItem("imageData");
+            
+            var smallImage2 = document.getElementById('smallImage2');
+            smallImage2.style.display = 'block';
+            smallImage2.src = "data:image/jpeg;base64," + imageDataDaStorage;
+        }
+        function onPhotoURISuccess(imageURI)
+        {
+            console.log('onPhotoURISuccess()');
+            
+            // Uncomment to view the image file URI
+            console.log("imageURI: ", imageURI);
+            
+            var largeImage = document.getElementById('smallImage');
+            
+            // Unhide image elements
+            
+            largeImage.style.display = 'block';
+            
+            // Show the captured photo
+            // The in-line CSS rules are used to resize the image
+            //
+            largeImage.src = imageURI;
+        }
+        function capturePhoto()
+        {
+            console.log('capturePhoto()');
+            
+            navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50, destinationType: destinationType.DATA_URL, allowEdit: true });
+        }
+        function capturePhotoLibrary()
+        {
+            console.log('capturePhotoLibrary()');
+            
+            navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50, destinationType: destinationType.DATA_URL, saveToPhotoAlbum: true });
+        }
+        function PHOTOLIBRARY()
+        {
+            console.log('PHOTOLIBRARY()');
+            
+            navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 100, destinationType: destinationType.FILE_URI, sourceType: pictureSource.PHOTOLIBRARY }); // pictureSource.SAVEDPHOTOALBUM da solo rullino fotografico senza gli album
+        }
+        function onFail(message)
+        {
+            console.log('onFail()');
+            
+            alert('Failed because: ' + message);
+        }
         </script>
         <div id="accelerometer">Waiting for accelerometer...</div>
         <button onclick="capturePhoto();">Capture Photo</button> <br>
         <button onclick="capturePhotoLibrary();">Capture Photo to library</button> <br>
         <button onclick="PHOTOLIBRARY();">PHOTOLIBRARY</button> <br>
         <img style="display:none;width:60px;height:60px;" id="smallImage" src="" />
+        <img style="width:60px;height:60px;" id="smallImage2" src="" />
+        <div id="dasostituire">Questa scritta NON si dovrebbe vedere!!!</div>
     </body>
 </html>
